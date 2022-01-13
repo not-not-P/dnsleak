@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>
+        DNS Leak Checker
+    </title>
+</head>
+<body>
+<div class="container">
+<div class="row mt-5">
+<div class="col-md-8 offset-md-2 text-center">
+<h1 class="h4">DNS Leak Checker</h1>
+
+<p class="mt-5">
+</p>
+<p style="font-size:.8rem" id="about" class="m-5">
+Here is a list of servers that handled your DNS queries.
+</p>
+
+<span id="test"></span>
+<ul id="list">
+</ul>
+
+</div>
+</div>
+</div> 
+<script>
+
+function codeToHTMLEmoji(isocode) {
+    if (isocode.length !== 2) {
+        throw Error('Two characters expected.');
+    }
+    const step = 127397;
+    const first = isocode[0].toUpperCase().charCodeAt() + step;
+    const second = isocode[1].toUpperCase().charCodeAt() + step;
+    return `&#${first};&#${second}`;
+}
+
+var alreadyGot = new Map();
+const list = document.querySelector('ul#list');
+const resultsSource = new EventSource('/results/');
+resultsSource.onmessage = (ev) => {
+    data = JSON.parse(ev.data);
+    console.log(data);
+    if (data.uid) {
+        for (let i = 0; i < 20; i++) {
+            fetch(`https://${data.uid}.${i}.leak.notnotp.com`);
+        }
+        return;
+    }
+    var li = document.createElement('li');
+    let key = `${data.org}${data.ip}${data.country}`
+
+    if (!alreadyGot.has(key)) {
+        alreadyGot.set(key, true);
+        li.innerHTML = `<code>${data.ip}</code> (${data.org}) `;
+        if (data.country) {
+            li.innerHTML += ` <abbr title="${data.country}">${codeToHTMLEmoji(data.country)}</abbr> `;
+        }
+        list.appendChild(li);
+    }
+};
+
+
+</script>
+</body>
+</html>
