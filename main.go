@@ -89,11 +89,11 @@ func main() {
 	// HTTP Server
 	pwd, _ := os.Getwd()
 	http.Handle("/", http.FileServer(http.Dir(pwd+"/static")))
-	http.HandleFunc("/results/", sseHandler)
+	http.HandleFunc("/results/", SSEHandler)
 	http.ListenAndServe(":8080", nil)
 }
 
-func sseHandler(w http.ResponseWriter, req *http.Request) {
+func SSEHandler(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
