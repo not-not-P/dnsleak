@@ -38,7 +38,7 @@ func (eb *OneToOneEventBus) Publish(topic int, addrInfo *AddressInfo) error {
 	defer eb.mu.Unlock()
 	ch, here := eb.topics[topic]
 	if !here {
-		return fmt.Errorf("Topic %s does not exist yet.", topic)
+		return fmt.Errorf("Topic %d does not exist yet.", topic)
 	}
 	ch <- addrInfo
 	return nil
@@ -145,12 +145,15 @@ func extractHostname(addr net.Addr) string {
 }
 
 func getAddressInfo(addr string) *AddressInfo {
+	addrInfo := new(AddressInfo)
 	url := "https://ipinfo.io/" + addr + "?token=" + IPINFO_TOKEN
 	fmt.Println("GET", url)
-	resp, _ := http.Get(url)
+	resp, err := http.Get(url)
+	if err != nil {
+		return addrInfo
+	}
 	defer resp.Body.Close()
 	decoder := json.NewDecoder(resp.Body)
-	addrInfo := new(AddressInfo)
 	decoder.Decode(addrInfo)
 	return addrInfo
 }
